@@ -30,11 +30,17 @@ const app = new Hono<HonoCustomType>();
 app.route('/__test', testApi);
 app.all('*', async c => {
   const passwordMode = c.req.header('x-test-address-password-mode');
-  const env = passwordMode ? {
+  const expiryMode = c.req.header('x-test-address-expiry-mode');
+  const env = {
     ...c.env,
-    ADDRESS_PASSWORD_LOGIN_ONLY: true,
-    ENABLE_ADDRESS_PASSWORD: passwordMode === 'password-only',
-  } : c.env;
+    ...(passwordMode ? {
+      ADDRESS_PASSWORD_LOGIN_ONLY: true,
+      ENABLE_ADDRESS_PASSWORD: passwordMode === 'password-only',
+    } : {}),
+    ...(expiryMode !== undefined ? {
+      ENABLE_ADDRESS_EXPIRY: expiryMode === 'enabled',
+    } : {}),
+  };
   const batchFailure = c.req.header('x-test-fail-db-batch');
   const kvFailure = c.req.header('x-test-fail-kv');
   const DB = batchFailure ? {
@@ -56,7 +62,11 @@ app.all('*', async c => {
       };
     },
   }) : c.env.KV;
-  const bindings = batchFailure || kvFailure ? { ...env, DB, KV } : env;
+  const sitePasswords = c.req.header('x-test-site-passwords');
+  const bindings = {
+    ...env, DB, KV,
+    ...(sitePasswords !== undefined ? { PASSWORDS: JSON.parse(sitePasswords) } : {}),
+  };
   if (!c.req.header('x-test-await-background')) return worker.fetch(c.req.raw, bindings, c.executionCtx);
 
   const tasks: Promise<unknown>[] = [];

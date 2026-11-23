@@ -6,7 +6,20 @@
   <a href="CHANGELOG_EN.md">English</a>
 </p>
 
-## v1.14.0(main)
+## v1.15.0(main)
+
+### Features
+
+- feat: |Mailbox| Add `ENABLE_ADDRESS_EXPIRY` feature flag (default `false`); when enabled, support optional `expiresAt` expiration when creating addresses via API (`/api/new_address`, `/admin/new_address`) and Web UI (defaults to never expiring), enforce expiry in shared mailbox auth and single-address user checks, and clean up expired addresses in bounded cron batches; upgrade database schema to `v0.0.11` (migrate database before enabling; actual deletion depends on cron schedule and cleanup progress; disabling pauses enforcement and cleanup without erasing saved deadlines; existing deployments must run `Admin -> Quick Setup -> Database -> Migrate Database`, or `db/2026-11-18-address-expires-at.sql` if already on `v0.0.10`)
+
+### Bug Fixes
+
+### Improvements
+
+- refactor: |Mail Parsing| Extract backend mail parsing into a shared module without changing parsing behavior or WASM selection
+- refactor: |Address Expiry| Extract shared expiry checks, remove duplicate queries and fallback wrappers, validate the format and time zone of `expiresAt` (a valid future date before 2100 UTC), omit `expires_at` from creation responses, and add the expiry column only during version migration
+
+## v1.14.0
 
 ### Features
 
@@ -24,6 +37,10 @@
 
 ### Bug Fixes
 
+- fix: |CI| Increase the unit-test job timeout from 5 to 15 minutes to allow time for dependency installation
+- fix: |Site Authentication| Fail closed for malformed or non-string-array `PASSWORDS` configurations while preserving valid and empty configuration behavior
+- fix: |CI| Wait for save and test responses in Webhook UI tests to avoid flaky assertions against missing or stale requests
+- fix: |Auto Update| Support an optional `UPSTREAM_SYNC_TOKEN` to sync workflow changes, retain the default token when unset, and declare the contents write permission required for syncing
 - fix: |Inbox| Keep the current message and restore the page and page size when pagination fails
 - fix: |Inbox| Show simple inbox refresh success only after a successful fetch
 - fix: |Mail Reader| Sanitize Shadow DOM email previews when remote images are allowed

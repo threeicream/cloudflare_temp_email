@@ -20,6 +20,7 @@
 | `ENABLE_USER_CREATE_EMAIL` | 文本/JSON   | 否       | 是否允许用户创建邮箱                       | `false`         | `true` |
 | `ENABLE_USER_DELETE_EMAIL` | 文本/JSON   | 否       | 是否允许用户删除邮件                       | `false`         | `true` |
 | `ENABLE_MAIL_READ_STATUS`  | 文本/JSON   | 否       | 启用邮件已读/未读状态。启用前需要升级数据库 Schema | `false` | `true` |
+| `ENABLE_ADDRESS_EXPIRY`    | 文本/JSON   | 否       | 启用邮箱过期时间（`expiresAt`）、鉴权过期校验及定时清理。启用前需先升级数据库至 `v0.0.11`；关闭后暂停校验与清理，不会清除已保存的过期时间 | `false` | `true` |
 | `ENABLE_REDEEM_CODE`       | 文本/JSON   | 否       | 启用兑换码页面、用户兑换 API 和管理端兑换码功能 | `false` | `true` |
 | `REDEEM_CODE_URL`          | 文本        | 否       | 获取兑换码的外部平台链接                   | 空，不展示入口  | `https://example.com/redeem-codes` |
 
@@ -31,7 +32,7 @@
 
 | 变量名                         | 类型      | 是否必填 | 说明                                 | 默认值/未配置时 | 示例             |
 | ------------------------------ | --------- | -------- | ------------------------------------ | --------------- | ---------------- |
-| `PASSWORDS`                    | JSON      | 否       | 网站私有密码，配置后需要密码才能访问 | `[]`，公开访问  | `["123", "456"]` |
+| `PASSWORDS`                    | JSON      | 否       | 网站私有密码，须为字符串数组（Secret 也需填写 JSON 数组）；格式错误返回 `500 / Invalid PASSWORDS configuration`，不会关闭密码保护 | 未配置、空字符串或过滤空密码后为空：公开访问 | `["123", "456"]` |
 | `ADMIN_API_IP_WHITELIST`       | JSON      | 否       | Admin API IP 白名单，配置后所有 `/admin/*` 请求仅允许列表中的 IP | `[]`，不限制来源 IP | `["203.0.113.10"]` |
 | `DISABLE_ADMIN_PASSWORD_CHECK` | 文本/JSON | 否       | 警告：跳过管理后台的密码或用户检查   | `false`         | `true`           |
 
